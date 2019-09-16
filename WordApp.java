@@ -151,8 +151,8 @@ public static String[] getDictFromFile(String filename) {
 
 		totalWords = 5;
 		noWords = 3;
-		String[] tmpDict = getDictFromFile("example_dict.txt");
-
+		// String[] tmpDict = getDictFromFile("example_dict.txt");
+		String[] tmpDict = null;
 		assert (totalWords>=noWords); // this could be done more neatly
 
 		if (tmpDict!=null)
