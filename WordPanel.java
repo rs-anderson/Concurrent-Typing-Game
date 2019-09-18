@@ -54,10 +54,6 @@ public class WordPanel extends JPanel implements Runnable, ActionListener {
 		public void run() {
 			//add in code to animate this
 			timer.start();
-			// for (int i=0;i<noWords;i++){
-			//
-			// 	MakeThread(words[i]);
-			// }
 
 			thrds= new WordThread[noWords];
 
@@ -73,22 +69,29 @@ public class WordPanel extends JPanel implements Runnable, ActionListener {
 		public void actionPerformed(ActionEvent e){
 			validate();
 			repaint();
+			if (WordApp.finished){
+				EndGui gui = new EndGui();
+				gui.setVisible(true);
+				timer.stop();
+			}
+
 		}
 
 
-		// static void MakeThread(WordRecord word){
-		// 		fjPool.invoke(new ThreadClass(word));
-		// }
-
-		public void testWord(String word) {
+		public int testWord(String word) {
+			int successCounter = 0;
 			for (int i=0;i<noWords;i++){
-				if (words[i].matchWord(word)==true){
-					WordApp.score.caughtWord(word.length());
-					WordApp.caught.setText("Caught: " + WordApp.score.getCaught() + "    ");
-					WordApp.scr.setText("Score:" + WordApp.score.getScore()+ "    ");
+				if(thrds[i].word.matchWord(word)==true){
+					thrds[i].updateTotals(word);
+					successCounter++;
+				// if (words[i].matchWord(word)==true){
+					// WordApp.score.caughtWord(word.length());
+					// WordApp.caught.setText("Caught: " + WordApp.score.getCaught() + "    ");
+					// WordApp.scr.setText("Score: " + WordApp.score.getScore()+ "    ");
 
 				}
 			}
+			return successCounter;
 		}
 
 }
