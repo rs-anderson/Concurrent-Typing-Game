@@ -11,12 +11,15 @@ import java.io.IOException;
 
 import java.util.Scanner;
 import java.util.concurrent.*;
+import java.io.*;
+import javax.sound.sampled.*;
 //model is separate from the view.
 
 public class WordApp {
 //shared variables
 	static int noWords=4;
 	static int totalWords;
+	static int wordCounter;
 
   static int frameX=1000;
 	static int frameY=600;
@@ -33,6 +36,9 @@ public class WordApp {
 	static JLabel caught;
 	static JLabel missed;
 	static JLabel scr;
+
+	static boolean ended=false;
+	static boolean finished=false;
 
 
 
@@ -55,8 +61,8 @@ public class WordApp {
 	    txt = new JPanel();
 	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS));
 	    caught =new JLabel("Caught: " + score.getCaught() + "    ");
-	    missed =new JLabel("Missed:" + score.getMissed()+ "    ");
-	    scr =new JLabel("Score:" + score.getScore()+ "    ");
+	    missed =new JLabel("Missed: " + score.getMissed()+ "    ");
+	    scr =new JLabel("Score: " + score.getScore()+ "    ");
 	    txt.add(caught);
 	    txt.add(missed);
 	    txt.add(scr);
@@ -68,10 +74,23 @@ public class WordApp {
 	    {
 	      public void actionPerformed(ActionEvent evt) {
 	          String text = textEntry.getText();
-						w.testWord(text);
+						if (!text.equals(""))
+							if(w.testWord(text)==0){
+								File soundFile = new File("142608__autistic-lucario__error.wav");
+								try{
+									AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+									Clip clip = AudioSystem.getClip();
+									clip.open(audioIn);
+									clip.start();
+								}
+								catch(Exception e){System.out.println(e);}
+							}
 	          //[snip]
 	          textEntry.setText("");
-	          textEntry.requestFocus();
+						if(!finished){
+							textEntry.requestFocus();
+						}
+
 	      }
 	    });
 
@@ -89,7 +108,15 @@ public class WordApp {
 		      public void actionPerformed(ActionEvent e)
 		      {
 		    	  //[snip]
+						score.resetScore();
+						caught.setText("Caught: " + score.getCaught() + "    ");
+						missed.setText("Missed: " + score.getMissed() + "    ");
+						scr.setText("Score: " + score.getScore()+ "    ");
+						finished=false;
+						ended=false;
 		    	  textEntry.requestFocus();  //return focus to the text entry field
+						createWordArray();
+						wordCounter = noWords-1;
 						w.run();
 		      }
 		  });
@@ -101,11 +128,29 @@ public class WordApp {
 		    public void actionPerformed(ActionEvent e)
 		      {
 		    	  //[snip]
+						ended = true;
+						score.resetScore();
+						caught.setText("Caught: " + score.getCaught() + "    ");
+						missed.setText("Missed: " + score.getMissed() + "    ");
+						scr.setText("Score: " + score.getScore()+ "    ");
 		      }
 		    });
 
+			JButton quitB = new JButton("Quit");
+
+				// add the listener to the jbutton to handle the "pressed" event
+				quitB.addActionListener(new ActionListener()
+				{
+				public void actionPerformed(ActionEvent e)
+					{
+						//[snip]
+						System.exit(0);
+					}
+				});
+
 		b.add(startB);
 		b.add(endB);
+		b.add(quitB);
 
 		g.add(b);
 
@@ -139,9 +184,16 @@ public static String[] getDictFromFile(String filename) {
 
 	}
 
+	public static void createWordArray(){
+		int x_inc=(int)frameX/noWords;
+			//initialize shared array of current words
+
+		for (int i=0;i<noWords;i++) {
+			words[i]=new WordRecord(dict.getNewWord(),i*x_inc,yLimit);
+		}
+	}
+
 	public static void main(String[] args) {
-
-
 		// !!!NEED THESE!!! //
 
 		//deal with command line arguments
@@ -149,8 +201,9 @@ public static String[] getDictFromFile(String filename) {
 		// noWords=Integer.parseInt(args[1]); // total words falling at any point
 		// String[] tmpDict=getDictFromFile(args[2]); //file of words
 
-		totalWords = 5;
-		noWords = 3;
+		totalWords = 20;
+		noWords = 2;
+		wordCounter = noWords-1;
 		// String[] tmpDict = getDictFromFile("example_dict.txt");
 		String[] tmpDict = null;
 		assert (totalWords>=noWords); // this could be done more neatly
@@ -162,19 +215,21 @@ public static String[] getDictFromFile(String filename) {
 
 		words = new WordRecord[noWords];  //shared array of current words
 
-		//[snip]
 
 		setupGUI(frameX, frameY, yLimit);
     //Start WordPanel thread - for redrawing animation
 
-		int x_inc=(int)frameX/noWords;
-	  	//initialize shared array of current words
+		createWordArray();
 
-		for (int i=0;i<noWords;i++) {
-			words[i]=new WordRecord(dict.getNewWord(),i*x_inc,yLimit);
+
+		File soundFile = new File("146434__copyc4t__dundundunnn.wav");
+		try{
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+			Clip clip = AudioSystem.getClip();
+			clip.open(audioIn);
+			clip.start();
 		}
-
-
+		catch(Exception f){System.out.println(f);}
 	}
 
 }
