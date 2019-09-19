@@ -5,6 +5,7 @@ public class WordRecord {
 	private int y;
 	private int maxY;
 	private boolean dropped;
+	public boolean exceeded=false;
 
 	private int fallingSpeed;
 	private static int maxWait=1500;
@@ -20,7 +21,7 @@ public class WordRecord {
 		y=0;
 		maxY=300;
 		dropped=false;
-		fallingSpeed=(int)(Math.random() * (maxWait-minWait)+minWait);
+		fallingSpeed=(int)((WordApp.score.getTotal()+1) * Math.random() * (maxWait-minWait)+minWait);
 	}
 
 	WordRecord(String text) {
@@ -76,19 +77,31 @@ public class WordRecord {
 	}
 
 	public synchronized void resetWord() {
-		resetPos();
-		text=dict.getNewWord();
-		dropped=false;
-		fallingSpeed=(int)(Math.random() * (maxWait-minWait)+minWait);
-		//System.out.println(getWord() + " falling speed = " + getSpeed());
+		if (exceeded==true){
+			text="";
+		}
+		else{
+			resetPos();
+			text=dict.getNewWord();
+			dropped=false;
+			fallingSpeed=(int)(Math.random() * (maxWait-minWait)+minWait);
+		}
 
+			//System.out.println(getWord() + " falling speed = " + getSpeed());
 	}
 
 	public synchronized boolean matchWord(String typedText) {
 		//System.out.println("Matching against: "+text);
 		if (typedText.equals(this.text)) {
-			resetWord();
-			return true;
+				synchronized(this) {WordApp.wordCounter++;}
+				if (exceededTest()){
+					exceeded = true;
+				}
+				else{
+					exceeded = false;
+				}
+				resetWord();
+				return true;
 		}
 		else
 			return false;
@@ -101,6 +114,23 @@ public class WordRecord {
 
 	public synchronized  boolean dropped() {
 		return dropped;
+	}
+
+	public boolean exceededTest(){
+		// System.out.println("Counter= "+WordApp.wordCounter);
+		// System.out.println("Total= "+(WordApp.totalWords));
+		// System.out.println("TotalScore= "+(WordApp.score.getTotal()+1));
+		if (WordApp.wordCounter>=WordApp.totalWords){
+			// System.out.println("Exceeded!");
+			if (WordApp.score.getTotal()+1 ==WordApp.totalWords){
+				WordApp.finished=true;
+			}
+			return true;
+		}
+		else{
+			// System.out.println("Not Exceeded!");
+			return false;
+		}
 	}
 
 }
