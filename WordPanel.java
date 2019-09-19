@@ -81,8 +81,7 @@ public class WordPanel extends JPanel implements Runnable, ActionListener {
 		public int testWord(String word) {
 			int successCounter = 0;
 			for (int i=0;i<noWords;i++){
-				if(thrds[i].word.matchWord(word)==true){
-					thrds[i].updateTotals(word);
+				if(thrds[i].match(word)==true){
 					successCounter++;
 				// if (words[i].matchWord(word)==true){
 					// WordApp.score.caughtWord(word.length());

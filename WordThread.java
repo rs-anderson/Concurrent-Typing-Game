@@ -70,12 +70,19 @@ public class WordThread extends Thread {
     }
     catch(Exception e){System.out.println(e);}
 
-
     WordApp.score.caughtWord(word.length());
     WordApp.caught.setText("Caught: " + WordApp.score.getCaught() + "    ");
     WordApp.scr.setText("Score: " + WordApp.score.getScore()+ "    ");
   }
 
+  public boolean match(String testWord){
+    // System.out.println(word.length());
+    if(word.matchWord(testWord)==true){
+      updateTotals(testWord);
+      return true;
+    }
+    return false;
+  }
 
   public void run() {
     timer.start();
