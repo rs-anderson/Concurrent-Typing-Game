@@ -15,12 +15,10 @@ public class WordThread extends Thread {
 
             if (word.getWord().equals("")){
               timer.stop();
-              // System.out.println("Thread stopped");
             }
 
-            else if (WordApp.ended==true){
+            else if ((WordApp.ended==true) || (WordApp.finished==true)){
               timer.stop();
-              // System.out.println("Thread stopped");
               word.setWord("");
             }
 
@@ -37,17 +35,16 @@ public class WordThread extends Thread {
                 }
                 catch(Exception f){System.out.println(f);}
 
-                WordApp.wordCounter++;
+                WordApp.score.missedWord();
                 if (word.exceededTest()){
                   timer.stop();
-                  // System.out.println("Thread stopped");
                   word.setWord("");
                 }
                 else{
                   word.resetWord();
                 }
-                WordApp.score.missedWord();
-                WordApp.missed.setText("Missed:" + WordApp.score.getMissed()+ "    ");
+
+              WordApp.missed.setText("Missed:" + WordApp.score.getMissed()+ "    ");
               }
             }
         }
@@ -59,8 +56,7 @@ public class WordThread extends Thread {
     timer.setInitialDelay(0);
   }
 
-  public void updateTotals(String word){
-    // System.out.println(word.length());
+  public void updateTotals(){
     File soundFile = new File("135936__bradwesson__collectcoin.wav");
     try{
       AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
@@ -70,15 +66,13 @@ public class WordThread extends Thread {
     }
     catch(Exception e){System.out.println(e);}
 
-    WordApp.score.caughtWord(word.length());
     WordApp.caught.setText("Caught: " + WordApp.score.getCaught() + "    ");
     WordApp.scr.setText("Score: " + WordApp.score.getScore()+ "    ");
   }
 
   public boolean match(String testWord){
-    // System.out.println(word.length());
     if(word.matchWord(testWord)==true){
-      updateTotals(testWord);
+      updateTotals();
       return true;
     }
     return false;
