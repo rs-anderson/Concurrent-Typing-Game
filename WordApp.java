@@ -17,9 +17,8 @@ import javax.sound.sampled.*;
 
 public class WordApp {
 //shared variables
-	static int noWords=4;
+	static int noWords;
 	static int totalWords;
-	static int wordCounter;
 
   static int frameX=1000;
 	static int frameY=600;
@@ -37,8 +36,9 @@ public class WordApp {
 	static JLabel missed;
 	static JLabel scr;
 
-	static boolean ended=false;
-	static boolean finished=false;
+	static volatile boolean ended=false;
+	static volatile boolean finished=false; // in-place of done
+	static volatile boolean exceeded=false;
 
 
 
@@ -74,7 +74,7 @@ public class WordApp {
 	    {
 	      public void actionPerformed(ActionEvent evt) {
 	          String text = textEntry.getText();
-						if (!text.equals(""))
+						if (!text.equals("")){
 							if(w.testWord(text)==0){
 								File soundFile = new File("142608__autistic-lucario__error.wav");
 								try{
@@ -85,6 +85,7 @@ public class WordApp {
 								}
 								catch(Exception e){System.out.println(e);}
 							}
+						}
 	          //[snip]
 	          textEntry.setText("");
 						if(!finished){
@@ -114,9 +115,9 @@ public class WordApp {
 						scr.setText("Score: " + score.getScore()+ "    ");
 						finished=false;
 						ended=false;
+						exceeded=false;
 		    	  textEntry.requestFocus();  //return focus to the text entry field
 						createWordArray();
-						wordCounter = noWords-1;
 						w.run();
 		      }
 		  });
@@ -202,8 +203,7 @@ public static String[] getDictFromFile(String filename) {
 		// String[] tmpDict=getDictFromFile(args[2]); //file of words
 
 		totalWords = 20;
-		noWords = 2;
-		wordCounter = noWords-1;
+		noWords = 10;
 		// String[] tmpDict = getDictFromFile("example_dict.txt");
 		String[] tmpDict = null;
 		assert (totalWords>=noWords); // this could be done more neatly
