@@ -5,7 +5,6 @@ public class WordRecord {
 	private int y;
 	private int maxY;
 	private boolean dropped;
-	public boolean exceeded=false;
 
 	private int fallingSpeed;
 	private static int maxWait=1500;
@@ -77,7 +76,7 @@ public class WordRecord {
 	}
 
 	public synchronized void resetWord() {
-		if (exceeded==true){
+		if (WordApp.exceeded==true){
 			text="";
 		}
 		else{
@@ -91,14 +90,10 @@ public class WordRecord {
 	}
 
 	public synchronized boolean matchWord(String typedText) {
-		//System.out.println("Matching against: "+text);
 		if (typedText.equals(this.text)) {
-				synchronized(this) {WordApp.wordCounter++;}
+				WordApp.score.caughtWord(typedText.length());
 				if (exceededTest()){
-					exceeded = true;
-				}
-				else{
-					exceeded = false;
+					WordApp.exceeded = true;
 				}
 				resetWord();
 				return true;
@@ -116,19 +111,14 @@ public class WordRecord {
 		return dropped;
 	}
 
-	public boolean exceededTest(){
-		// System.out.println("Counter= "+WordApp.wordCounter);
-		// System.out.println("Total= "+(WordApp.totalWords));
-		// System.out.println("TotalScore= "+(WordApp.score.getTotal()+1));
-		if (WordApp.wordCounter>=WordApp.totalWords){
-			// System.out.println("Exceeded!");
-			if (WordApp.score.getTotal()+1 ==WordApp.totalWords){
+	public synchronized boolean exceededTest(){
+		if (WordApp.score.getTotal() + WordApp.noWords >= WordApp.totalWords + 1){
+			if (WordApp.score.getTotal() == WordApp.totalWords){
 				WordApp.finished=true;
 			}
 			return true;
 		}
 		else{
-			// System.out.println("Not Exceeded!");
 			return false;
 		}
 	}
