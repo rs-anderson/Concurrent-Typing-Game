@@ -1,3 +1,7 @@
+/** EndGui class to display the results-GUI.
+ * @author ANDRYA005
+**/
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.*;
@@ -9,6 +13,9 @@ public class EndGui extends JFrame implements ActionListener {
 
    JButton button;
 
+   /**
+    * Constructor for the GUI
+    */
    public EndGui() {
        super("Results");
        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -29,14 +36,18 @@ public class EndGui extends JFrame implements ActionListener {
        add(button);
    }
 
+    /**
+     * Closed GUI when event triggered
+     * @param e an ActionEvent object
+     */
     public void actionPerformed(ActionEvent e){
         String buttonString = e.getActionCommand();
         if (buttonString.equals("Close Window")){
             dispose();
             WordApp.score.resetScore();
-						WordApp.caught.setText("Caught: " + WordApp.score.getCaught() + "    ");
-						WordApp.missed.setText("Missed: " + WordApp.score.getMissed() + "    ");
-						WordApp.scr.setText("Score: " + WordApp.score.getScore()+ "    ");
+            WordApp.caught.setText("Caught: " + WordApp.score.getCaught() + "    ");
+            WordApp.missed.setText("Missed: " + WordApp.score.getMissed() + "    ");
+            WordApp.scr.setText("Score: " + WordApp.score.getScore()+ "    ");
             }
         else
             System.exit(0);

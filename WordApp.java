@@ -1,24 +1,25 @@
+/** WordApp class to run the game.
+ * @author ANDRYA005
+*/
 
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-
 import java.util.Scanner;
 import java.util.concurrent.*;
 import java.io.*;
 import javax.sound.sampled.*;
-//model is separate from the view.
+
 
 public class WordApp {
-//shared variables
-	static int noWords;
-	static int totalWords;
+
+	//shared variables
+	static int noWords;																// number of words to appear on screen at given time
+	static int totalWords;														// total words to fall
 
   static int frameX=1000;
 	static int frameY=600;
@@ -27,7 +28,6 @@ public class WordApp {
 	static WordDictionary dict = new WordDictionary(); //use default dictionary, to read from file eventually
 
 	static WordRecord[] words;
-	static volatile boolean done;  //must be volatile
 	static Score score = new Score();
 
 	static WordPanel w;
@@ -36,28 +36,36 @@ public class WordApp {
 	static JLabel missed;
 	static JLabel scr;
 
-	static volatile boolean ended=false;
-	static volatile boolean finished=false; // in-place of done
-	static volatile boolean exceeded=false;
+	static volatile boolean ended=false;									// signal that the ended button was pressed
+	static volatile boolean finished=false; 							// signal that the game is finished
+	static volatile boolean exceeded=false;								// signal to show no more words
+	private static boolean initialRun=true;								// true if first run of game
 
 
-
+	/**
+	 * Method to create the GUI and handle action events.
+	 * @param frameX x-size of the GUI
+	 * @param frameY y-size of the GUI
+	 * @param yLimit the maximum y value for words to fall
+	 */
 	public static void setupGUI(int frameX,int frameY,int yLimit) {
-		// Frame init and dimensions
+
+			// Frame init and dimensions
     	JFrame frame = new JFrame("WordGame");
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	frame.setSize(frameX, frameY);
 
+			// JPanel creation
     	JPanel g = new JPanel();
       g.setLayout(new BoxLayout(g, BoxLayout.PAGE_AXIS));
     	g.setSize(frameX,frameY);
 
-
+			// WordPanel creation
 			w = new WordPanel(words,yLimit);
 			w.setSize(frameX,yLimit+100);
 	    g.add(w);
 
-
+			// Jpanel creation for the score text
 	    txt = new JPanel();
 	    txt.setLayout(new BoxLayout(txt, BoxLayout.LINE_AXIS));
 	    caught =new JLabel("Caught: " + score.getCaught() + "    ");
@@ -67,8 +75,7 @@ public class WordApp {
 	    txt.add(missed);
 	    txt.add(scr);
 
-	    //[snip]
-
+			// for handling entered words
 	    final JTextField textEntry = new JTextField("",20);
 	   	textEntry.addActionListener(new ActionListener()
 	    {
@@ -86,7 +93,6 @@ public class WordApp {
 								catch(Exception e){System.out.println(e);}
 							}
 						}
-	          //[snip]
 	          textEntry.setText("");
 						if(!finished){
 							textEntry.requestFocus();
@@ -99,16 +105,20 @@ public class WordApp {
 	   txt.setMaximumSize( txt.getPreferredSize() );
 	   g.add(txt);
 
+			// JPanel for the buttons
 	    JPanel b = new JPanel();
       b.setLayout(new BoxLayout(b, BoxLayout.LINE_AXIS));
-	   	JButton startB = new JButton("Start");;
+	   	JButton startB = new JButton("Start");
 
-			// add the listener to the jbutton to handle the "pressed" event
+			// added the listener to the jbutton to handle the "pressed" event
 			startB.addActionListener(new ActionListener()
 		  {
 		      public void actionPerformed(ActionEvent e)
 		      {
-		    	  //[snip]
+						if (!initialRun){
+							w.endThreads();
+						}
+						initialRun=false;
 						score.resetScore();
 						caught.setText("Caught: " + score.getCaught() + "    ");
 						missed.setText("Missed: " + score.getMissed() + "    ");
@@ -123,13 +133,14 @@ public class WordApp {
 		  });
 			JButton endB = new JButton("End");;
 
-				// add the listener to the jbutton to handle the "pressed" event
+				// added the listener to the jbutton to handle the "pressed" event
 				endB.addActionListener(new ActionListener()
 		    {
 		    public void actionPerformed(ActionEvent e)
 		      {
 		    	  //[snip]
 						ended = true;
+						initialRun = true;
 						score.resetScore();
 						caught.setText("Caught: " + score.getCaught() + "    ");
 						missed.setText("Missed: " + score.getMissed() + "    ");
@@ -139,7 +150,7 @@ public class WordApp {
 
 			JButton quitB = new JButton("Quit");
 
-				// add the listener to the jbutton to handle the "pressed" event
+				// added the listener to the jbutton to handle the "pressed" event
 				quitB.addActionListener(new ActionListener()
 				{
 				public void actionPerformed(ActionEvent e)
@@ -155,16 +166,19 @@ public class WordApp {
 
 		g.add(b);
 
-  	frame.setLocationRelativeTo(null);  // Center window on screen.
-  	frame.add(g); //add contents to window
+  	frame.setLocationRelativeTo(null);  			// Center window on screen.
+  	frame.add(g); 														//add contents to window
     frame.setContentPane(g);
-   	//frame.pack();  // don't do this - packs it into small space
     frame.setVisible(true);
 
 
 	}
 
-
+/**
+ * For retreiving a dictionary of words from a text file.
+ * @param  filename file to read from
+ * @return          array of words
+ */
 public static String[] getDictFromFile(String filename) {
 		String [] dictStr = null;
 		try {
@@ -185,6 +199,9 @@ public static String[] getDictFromFile(String filename) {
 
 	}
 
+	/**
+	 * Creating an array of WordRecord objects
+	 */
 	public static void createWordArray(){
 		int x_inc=(int)frameX/noWords;
 			//initialize shared array of current words
@@ -194,34 +211,35 @@ public static String[] getDictFromFile(String filename) {
 		}
 	}
 
+
+	/**
+	 * Main method to run the game.
+	 * @param args 0 = total words, 1 = number of words to fall, 2 = dictionary file.
+	 */
 	public static void main(String[] args) {
-		// !!!NEED THESE!!! //
 
-		//deal with command line arguments
-		// totalWords=Integer.parseInt(args[0]);  //total words to fall
-		// noWords=Integer.parseInt(args[1]); // total words falling at any point
-		// String[] tmpDict=getDictFromFile(args[2]); //file of words
+		//Command line arguments
+		totalWords=Integer.parseInt(args[0]);  						//total words to fall
+		noWords=Integer.parseInt(args[1]);							  //total words falling at any point
+		String[] tmpDict=getDictFromFile(args[2]);			  //file of words
 
-		totalWords = 20;
-		noWords = 10;
-		// String[] tmpDict = getDictFromFile("example_dict.txt");
-		String[] tmpDict = null;
-		assert (totalWords>=noWords); // this could be done more neatly
+
+		if (totalWords < noWords){
+			System.out.println("Total words is less than no Words");
+			System.exit(0);
+		}
 
 		if (tmpDict!=null)
 			dict = new WordDictionary(tmpDict);
 
-		WordRecord.dict=dict; //set the class dictionary for the words.
+		WordRecord.dict=dict;															//set the class dictionary for the words.
 
-		words = new WordRecord[noWords];  //shared array of current words
-
+		words = new WordRecord[noWords];  								//shared array of current words
 
 		setupGUI(frameX, frameY, yLimit);
-    //Start WordPanel thread - for redrawing animation
-
 		createWordArray();
 
-
+		//sound effect for start of game
 		File soundFile = new File("146434__copyc4t__dundundunnn.wav");
 		try{
 			AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
