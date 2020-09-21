@@ -24,10 +24,10 @@ For more information on the classes created, the concurrent features used and ho
 
 1. After running the "make" command, all the necessary compilations of source files occurs.
 
-2. Do not call "make run" because it does not allow you to pass command-line arguments in. Rather run the program by calling "java WordApp <totalWords> <noWords> <dictionary_file> from the bin directory. The game will then begin.
+2. Do not call "make run" because it does not allow you to pass command-line arguments in. Rather run the program by calling "java WordApp \<totalWords> \<noWords> <dictionary_file>" from the bin directory. The game will then begin.
   
-  * <totalWords> - the total number of words that will fall from the screen
-  * <noWords> - the number of words falling at any given time
+  * \<totalWords> - the total number of words that will fall from the screen
+  * \<noWords> - the number of words falling at any given time
   * <dictionary_file> - a .csv file containing the dictionary of words to use. We used example_dict.txt (seen in the bin directory).
   
 3. Ensure the dictionary file is in the bin directory.
