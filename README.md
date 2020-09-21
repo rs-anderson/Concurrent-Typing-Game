@@ -1,4 +1,9 @@
-A few things to note:
+# Concurrent Typing Game
+
+
+
+
+## A few things to note:
 
 1. After running the "make" command, all the necessary compilations of source files occurs.
 
