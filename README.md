@@ -14,8 +14,7 @@ The player has to correctly type the words that are falling before they reach th
 
 ## Concurrency
 
-
-
+Each of the "columns" of words falling from the screen have their own thread. Furthermore, the GUI is run on a separate thread from the main thread.
 
 
 For more information on the classes created, the concurrent features used and how I ensured thread-safety, see the file *Report.pdf*
